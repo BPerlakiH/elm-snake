@@ -45,25 +45,25 @@ onKey code =
             OtherKey code
 
 
-type alias Vector =
+type alias Point =
     ( Int, Int )
 
 
 type Msg
     = Tick Time
-    | Move Vector
+    | Move Point
     | OtherKey KeyCode
     | RepositionApple
-    | NewApplePos Vector
+    | NewApplePos Point
 
 
 type alias Model =
     { keycode : String
-    , direction : Vector
-    , headPos : Vector
-    , trail : List Vector
+    , direction : Point
+    , headPos : Point
+    , trail : List Point
     , tailLength : Int
-    , applePos : Vector
+    , applePos : Point
     }
 
 
@@ -93,7 +93,7 @@ model =
     }
 
 
-randomBoardPoint : Generator Vector
+randomBoardPoint : Generator Point
 randomBoardPoint =
     pair (int 0 (boardWidth - 1)) (int 0 (boardHeight - 1))
 
@@ -119,7 +119,7 @@ update msg model =
             ( { model | applePos = ( x, y ) }, Cmd.none )
 
 
-updateDirection : Model -> Vector -> ( Model, Cmd Msg )
+updateDirection : Model -> Point -> ( Model, Cmd Msg )
 updateDirection model newDirection =
     ( { model | direction = newDirection }, Cmd.none )
 
@@ -148,18 +148,18 @@ moveSnake model =
         defPos =
             ( boardWidth // 2, boardHeight // 2 )
 
-        newHead : Vector
+        newHead : Point
         newHead =
             newPosition model.headPos model.direction
 
-        newList : List Vector
+        newList : List Point
         newList =
             List.take model.tailLength (newHead :: model.trail)
     in
     { model | headPos = newHead, trail = newList }
 
 
-newPosition : Vector -> Vector -> Vector
+newPosition : Point -> Point -> Point
 newPosition pos delta =
     let
         ( dx, dy ) =
@@ -248,11 +248,11 @@ toFloatGridPos value =
     toFloat ((value * gridSize) + gridSize // 2)
 
 
-toRenderPos : Vector -> ( Float, Float )
-toRenderPos vector =
+toRenderPos : Point -> ( Float, Float )
+toRenderPos point =
     let
         ( x, y ) =
-            vector
+            point
 
         xOff =
             (0 - boardWidth) // 2
@@ -263,7 +263,7 @@ toRenderPos vector =
     ( toFloatGridPos (x + xOff), toFloatGridPos (y + yOff) )
 
 
-renderUnit : Vector -> Color -> Collage.Form
+renderUnit : Point -> Color -> Collage.Form
 renderUnit atPosition paintColor =
     let
         ( x, y ) =
@@ -273,6 +273,6 @@ renderUnit atPosition paintColor =
         |> Collage.move ( x + 1, y + 1 )
 
 
-renderSnakeUnit : Vector -> Collage.Form
+renderSnakeUnit : Point -> Collage.Form
 renderSnakeUnit atPosition =
     renderUnit atPosition (Color.rgb 23 189 255)
